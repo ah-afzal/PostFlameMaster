@@ -1,7 +1,10 @@
-
+/To_h5/__pycache__
 /To_h5/OutSteady
 /To_h5/Modified_Files
 /To_h5/flamelets
 /FilterData/Filtered_flamelets
 /FilterData/FlameMasterOutput
 /FilterData/Processed_flamelets
+*.out
+*.err
+*.sh

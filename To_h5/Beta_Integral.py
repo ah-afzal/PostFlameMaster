@@ -68,6 +68,7 @@ def bimodal_integration(f, x_ave):
 
 def beta_integration(f, x, x_ave, x_nvar,EPS=1e-9):
 
+
     if x_ave < EPS:#as x_ave->0, it becomes delta concentrated at x=0
         return f[0]
     

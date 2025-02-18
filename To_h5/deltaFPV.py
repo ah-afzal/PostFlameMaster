@@ -4,16 +4,16 @@ Created on Wed Feb 12 07:30:25 2025
 
 @author: afzala
 """
-from integral_dZ import int_dZ
+from integral_dZ_Parallel import int_dZ
 import os
 import numpy as np
 import h5py
 
-n_Zmean=6
-n_Zvar=4
+n_Zmean=100
+n_Zvar=15
 var_ratio=1.1
 
-def compile_hdf5(input_directory, output_file="flameletData.h5"):
+def compile_hdf5(input_directory, output_file="flameletTable.h5"):
     # Axes definitions
     axes = ["variables", "ZAverage", "ZNormalizedVariance", "ParameterProgressVariableAverage"]
 
@@ -23,14 +23,16 @@ def compile_hdf5(input_directory, output_file="flameletData.h5"):
     variable_keys = None
     files=os.listdir(input_directory)
     # Process all Excel files in the input directory
+    i=1
     for filename in files:
         if filename.endswith(".csv"):
             file_path = os.path.join(input_directory, filename)
-            print(f"Processing: {file_path}")
             c_st, integral_vars, keys= int_dZ(file_path,n_Zmean,n_Zvar,var_ratio)
             # Append the results for the current file
             cst_values.append(c_st)
             all_integral_vars.append(integral_vars)
+            print(i, " out of ", len(files))
+            i+=1
     variable_keys = keys  # Store variable names from any file (assuming consistent variables)
 
     # Convert list to numpy arrays for HDF5 storage

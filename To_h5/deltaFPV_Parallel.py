@@ -18,8 +18,8 @@ import h5py
 import sys
 import timeit
 
-n_Zmean=10
-n_Zvar=5
+n_Zmean=100
+n_Zvar=15
 var_ratio=1.1
 
 
