@@ -11,7 +11,7 @@ def onefile_csv(file_path):
      T_st=float(file_path[-3:])   
      #stores the stoichiometric T
     
-    c_vars=['H2O','H2']#progress variable list
+    c_vars=['H2O']#progress variable list
     
     
     data = {} #dictionary to store values of each variable

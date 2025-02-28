@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+from integral_dCst_Parallel import int_dCst
 from integral_dZ_Parallel import int_dZ
 import itertools
 from Beta_Integral import beta_integration
@@ -8,10 +9,14 @@ import h5py
 from multiprocessing import Pool
 from tqdm import tqdm
 
-core_count = 150
+core_count = 192
+n_Zmean=50
+n_Zvar=8
+n_Cstmean=50
+n_Cstvar=8
+var_ratio=1.1
 
-
-def int_dZdCst(n_Cstmean=100,n_Cstvar=15,var_ratio=1.1):
+def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cstvar,var_ratio=var_ratio):
     directory = 'Modified_Files'
     directs=os.listdir(directory)
     os.chdir(directory)  
@@ -24,11 +29,11 @@ def int_dZdCst(n_Cstmean=100,n_Cstvar=15,var_ratio=1.1):
      for filename in directs:
             
         print(i," out of ", len(directs),flush=True)
-        integral=int_dZ(filename,p)
+        integral=int_dZ(filename,p,n_Zmean,n_Zvar)
         integral_dZ[integral[0]]=integral[1]#0:Cst,1:Integrals with three index(variable,mean and var),2:variable names
         i+=1
     
-     dict_sorted=sorted(integral_dZ)#sort keys(C_st) of dictionary
+     dict_sorted=sorted(integral_dZ)#sort keys(C_st) of dictionary. This doesn't change the dictionary
      #dictionary modified to scale C_st b/w 0 and 1
      modified_dict = {(key - dict_sorted[0]) / (dict_sorted[-1]-dict_sorted[0]): value for key, value in integral_dZ.items()}
     
@@ -38,9 +43,10 @@ def int_dZdCst(n_Cstmean=100,n_Cstvar=15,var_ratio=1.1):
      for i in range(n_Cstvar-1):
        Cst_vars[i+1]=(1-var_ratio**(i+1))/(1-var_ratio)
      Cst_vars=Cst_vars/Cst_vars[-1]
-        
      #sorted list of modified_dict keys
      mod_sort=sorted(modified_dict.keys())
+
+
     
      n_variables=integral[1].shape[0] #extracts number of variables
      n_Zmean=integral[1].shape[1]#extracts number of Zmeans
@@ -61,33 +67,18 @@ def int_dZdCst(n_Cstmean=100,n_Cstvar=15,var_ratio=1.1):
      CWC_index=variables.index('ProgVarProdRate') #This is progvar*progvarproductionrate
        
     
-    
-    print("Starting dCst integration",flush=True)
+     print("Starting dCst integration",flush=True)
      
-    proc_inputs = [
-    (np.array([modified_dict[cst_norm][v][mz][vz]  for cst_norm in mod_sort]), np.array(mod_sort),Cst_means[mc],Cst_vars[vc])
-    
-     for v in range(n_variables)
-        for mz in range(n_Zmean)
-            for vz in range(n_Zvar)
-              for mc in range(n_Cstmean)
-                for vc in range(n_Cstvar)]
-     
-    print("0",flush=True)
-    optimal_chunksize = max(1, len(proc_inputs) // (core_count * 4))  # Auto-tuned chunksize
-     
-    with Pool(core_count) as p2: 
-     output= p2.starmap(beta_integration,tqdm(proc_inputs, total=len(proc_inputs)),chunksize=optimal_chunksize)
-
-     idx = 0  # Counter for flat output
-     for v in range(n_variables):
-       for mz in range(n_Zmean):
+     ct=1
+     for mz in range(n_Zmean):
+        print(ct," out of ",n_Zmean,flush=True)
+        ct+=1
         for vz in range(n_Zvar):
-            for mc in range(n_Cstmean):
-                for vc in range(n_Cstvar):
-                    table[v][mz][vz][mc][vc] = output[idx]
-                    idx += 1
+           integrand=np.array([modified_dict[_][:,mz,vz] for _ in mod_sort])
+           table[:-2,mz,vz,:,:]=int_dCst(integrand,np.array(mod_sort),p,n_Cstmean,n_Cstvar,var_ratio)
+       
 
+     
     for v in range(n_variables,n_variables+extra_variables):
         for mz in range(n_Zmean):
             for vz in range(n_Zvar):

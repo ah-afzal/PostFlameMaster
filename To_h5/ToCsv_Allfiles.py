@@ -15,3 +15,5 @@ def allfile_csv():
         
         onefile_csv(filename)
     os.chdir('..')
+if __name__ == "__main__":
+    allfile_csv()

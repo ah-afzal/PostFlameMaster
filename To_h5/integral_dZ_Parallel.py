@@ -8,7 +8,7 @@ from Beta_Integral import beta_integration
 import re
 
 
-def int_dZ(file_path,pool,n_Zmean=50,n_Zvar=7,var_ratio=1.1):
+def int_dZ(file_path,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1):
     #obtain c_st vale   
     c_st=float(re.findall(r"\d+\.\d+", file_path)[-1])
     
