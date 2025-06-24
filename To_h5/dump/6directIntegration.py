@@ -19,10 +19,48 @@ n_Cvar=15
 var_ratio=1.1
 combined_csv="compiled_output.csv"
 
-def int_dC(f,Z,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1,max_c=1):
+def int_dC(f,Z,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1):
     #print("f",f)
     #print("Z",Z)
-    Z=Z/Z[-1]
+    #create list of means and variances
+    Z_means = np.linspace(0, 1, n_Zmean)
+    Z_vars=np.zeros(n_Zvar)
+    for i in range(n_Zvar-1):
+        Z_vars[i+1]=(1-var_ratio**(i+1))/(1-var_ratio)
+    Z_vars=Z_vars/Z_vars[-1]
+
+    integral_vars=np.zeros((f.shape[0],n_Zmean,n_Zvar)) #integrated variables
+    proc_inputs = [
+    (f[i,:], Z, Z_means[xx], Z_vars[yy])
+    for i in range(f.shape[0])
+    for xx in range(n_Zmean)
+    for yy in range(n_Zvar)
+                  ]
+    #with Pool(core_count) as p:
+    output= pool.starmap(beta_integration,proc_inputs)
+    resh_output=np.array(output).reshape(f.shape[0],n_Zmean,n_Zvar)
+    return resh_output
+
+
+def int_dCN(f,Z,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1,max_c=1):
+    #print("f",f)
+    #print("Z",Z)
+    
+    for i in range(len(Z)):
+                if np.isnan(f[12][i]):
+                    end=i
+                    break
+    print(end)
+    if(end==1):
+     f= f[:,0:2]
+     f[:,1]=0
+     Z=Z[0:2]
+     Z[1]=1
+    else:
+     f=f[:,0:end]
+     Z=Z[0:end]
+     Z=Z/Z[-1]
+
     #create list of means and variances
     Z_means = np.linspace(0, 1, n_Zmean)
     Z_vars=np.zeros(n_Zvar)
@@ -45,28 +83,6 @@ def int_dC(f,Z,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1,max_c=1):
 
 
 
-def int_dZ(f,Z,pool,n_Zmean=100,n_Zvar=15,var_ratio=1.1):
-    #print("f",f)
-    #print("Z",Z)
-    
-    #create list of means and variances
-    Z_means = np.linspace(0, 1, n_Zmean)
-    Z_vars=np.zeros(n_Zvar)
-    for i in range(n_Zvar-1):
-        Z_vars[i+1]=(1-var_ratio**(i+1))/(1-var_ratio)
-    Z_vars=Z_vars/Z_vars[-1]
-
-    integral_vars=np.zeros((f.shape[0],n_Zmean,n_Zvar)) #integrated variables
-    proc_inputs = [
-    (f[i,:], Z, Z_means[xx], Z_vars[yy])
-    for i in range(f.shape[0])
-    for xx in range(n_Zmean)
-    for yy in range(n_Zvar)
-                  ]
-    #with Pool(core_count) as p:
-    output= pool.starmap(beta_integration,proc_inputs)
-    resh_output=np.array(output).reshape(f.shape[0],n_Zmean,n_Zvar) 
-    return resh_output
 
 def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cmean=n_Cmean,n_Cvar=n_Cvar,var_ratio=var_ratio):
     df = pd.read_csv(combined_csv)
@@ -98,33 +114,25 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cmean=n_Cmean,n_Cvar=n_Cvar,var_
 	    values = df[var].values  # Function values from the dataset
 	    
 	    # Cubic interpolation
-	    cubic_interp = griddata((Z, c), values, (Z_mesh, c_mesh), method='cubic')
+	    cubic_interp = griddata((Z, c), values, (Z_mesh, c_mesh), method='linear')
 	    # Use cubic where valid, otherwise nearest
 	    
 	    # Store in dictionary
 	    f[var] = cubic_interp
-    for var in dependent_vars:
-        for i in range(num_points):
-            for j in range(num_points):
-                if np.isnan(f[var][i,j]):
-                    f[var][i,j:]=0#f[var][i,j-1]
-    
-                
-                 
 
     
     variables = list(f.keys())  # Store variable names
     f = np.stack([f[var] for var in variables], axis=0)
     #print(f[var_names.index('T')])
     output_file='flameletTable.h5'
-    integral_dZ=np.zeros((num_points,f.shape[0],n_Zmean,n_Zvar))
+    integral_dC=np.zeros((num_points,f.shape[0],n_Cmean,n_Cvar))
      #stores integrals wrt Z, with key = c
     with Pool(core_count) as p:
         
-     print("Starting dZ integration",flush=True)
+     print("Starting dC integration",flush=True)
      for i in range(num_points) :
         print(i+1," out of ", num_points,flush=True)
-        integral_dZ[i,:,:,:]=int_dC(f[:,:,i],Z_grid,p,n_Zmean,n_Zvar)    
+        integral_dC[i,:,:,:]=int_dCN(f[:,i,:],c_grid,p,n_Cmean,n_Cvar)    
     
      #create list of means and variances
      C_means = np.linspace(0, 1, n_Cmean)
@@ -149,15 +157,15 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cmean=n_Cmean,n_Cvar=n_Cvar,var_
      CWC_index=variables.index('ProgVarProdRate') #This is progvar*progvarproductionrate
        
     
-     print("Starting dCst integration",flush=True)
+     print("Starting dZ integration",flush=True)
      
      ct=1
-     for mz in range(n_Zmean):
-        print(ct," out of ",n_Zmean,flush=True)
+     for mz in range(n_Cmean):
+        print(ct," out of ",n_Cmean,flush=True)
         ct+=1
-        for vz in range(n_Zvar):
-           integrand=np.array([integral_dZ[:,i,mz,vz] for i in range(len(variables)-extra_variables)])
-           table[:-2,mz,vz,:,:]=int_dC(integrand,c_grid,p,n_Cmean,n_Cvar,var_ratio,max_c)
+        for vz in range(n_Cvar):
+            integrand=np.array([integral_dC[:,i,mz,vz] for i in range(len(variables)-extra_variables)])
+            table[:-2,:,:,mz,vz]=int_dC(integrand,Z_grid,p,n_Zmean,n_Zvar,var_ratio)
        
 
      
@@ -203,7 +211,7 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cmean=n_Cmean,n_Cvar=n_Cvar,var_
         f.create_dataset(axes[0], data=np.array(variables, dtype=dt))  # Variables
         f.create_dataset(axes[1], data=Z_means)  # Zmean
         f.create_dataset(axes[2], data=Z_vars)  # Zvar
-        f.create_dataset(axes[3], data=C_means*max_c)  # Cmean
+        f.create_dataset(axes[3], data=C_means)  # Cmean
         f.create_dataset(axes[4], data=C_vars)  # Cvar
 
         # Attach axis labels and scales

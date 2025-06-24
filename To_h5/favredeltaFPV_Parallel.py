@@ -8,12 +8,13 @@ from integral_dZ_Parallel import int_dZ
 import os
 import numpy as np
 import h5py
-
-n_Zmean=10
-n_Zvar= 5
+from multiprocessing import Pool
+core_count=192
+n_Zmean=100
+n_Zvar=15
 var_ratio=1.1
 
-def compile_hdf5(input_directory, output_file="flameletTable.h5"):
+def compile_hdf5(input_directory, output_file="dflameletTable.h5"):
     # Axes definitions
     axes = ["variables", "ZAverage", "ZNormalizedVariance", "ParameterProgressVariableAverage"]
 
@@ -24,11 +25,22 @@ def compile_hdf5(input_directory, output_file="flameletTable.h5"):
     files=os.listdir(input_directory)
     # Process all Excel files in the input directory
     i=1
-    for filename in files:
+    with Pool(core_count) as p:
+     for filename in files:
         if filename.endswith(".csv"):
             file_path = os.path.join(input_directory, filename)
-            c_st, integral_vars, keys= int_dZ(file_path,n_Zmean,n_Zvar,var_ratio)
+            c_st, integral_vars, keys= int_dZ(file_path,p,n_Zmean,n_Zvar,var_ratio)
             # Append the results for the current file
+
+            include_vars = {'mu', 'ProdRateProgressVariable'}
+            rho_index = keys.index('rho')
+
+            for ii, var_name in enumerate(keys):
+               if var_name=='rho':
+                   integral_vars[ii, :, :]=1/integral_vars[ii, :, :] 
+                   continue
+               if var_name in include_vars:
+                 integral_vars[ii, :, :] *= integral_vars[rho_index, :, :]
             cst_values.append(c_st)
             all_integral_vars.append(integral_vars)
             print(i, " out of ", len(files))
@@ -76,7 +88,7 @@ def compile_hdf5(input_directory, output_file="flameletTable.h5"):
 
 if __name__ == "__main__":
     # Path to the input directory containing Excel files
-    input_directory = "Modified_Files"
+    input_directory = "deltafavre"
 
     # Generate the HDF5 file
     compile_hdf5(input_directory)

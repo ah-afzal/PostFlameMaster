@@ -10,8 +10,8 @@ import numpy as np
 import h5py
 from multiprocessing import Pool
 core_count=192
-n_Zmean=100
-n_Zvar=15
+n_Zmean=10
+n_Zvar=5
 var_ratio=1.1
 
 def compile_hdf5(input_directory, output_file="flameletTable.h5"):
@@ -78,7 +78,7 @@ def compile_hdf5(input_directory, output_file="flameletTable.h5"):
 
 if __name__ == "__main__":
     # Path to the input directory containing Excel files
-    input_directory = "Modified_Files"
+    input_directory = "favre"
 
     # Generate the HDF5 file
     compile_hdf5(input_directory)

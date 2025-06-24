@@ -54,17 +54,19 @@ def onefile_csv(file_path):
     sum=0
     
     for vars in c_vars:
-            
-          sum+=np.interp(z_st,[data['Z'][ind],data['Z'][ind+1]],[data[vars][ind],data[vars][ind+1]])
+          sum+=np.interp(z_st,[data['Z'][ind],data['Z'][ind+1]],[data[vars][ind],data[vars][ind+1]])  
         
     data['T'] = data.pop('temperature')
     data['rho'] = data.pop('density')
     
     progVar = np.zeros(len(data['rho']))
     prodRateProgVar = np.zeros(len(data['rho']))
+
+
+
     for vars in c_vars:
         progVar+=data[vars]
-        prodRateProgVar+=data["ProdRate"+vars]        
+        prodRateProgVar+=data["ProdRate"+vars]
     data['ProgressVariable']=progVar
     data['ProdRateProgressVariable']=prodRateProgVar
     

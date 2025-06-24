@@ -14,9 +14,13 @@ directory_path = "../Modified_Files"  # Replace with the path to your directory
 
 
 # Indices you want to keep..1based Index
+#columns_to_keep =[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+columns_to_keep =[1,3,5,8,9,12,13,16,17,23,40,42,46,47,48,49,50,51,52]
+#columns_to_keep =[1,3,5,8,9,12,13,16,17,23,40,42,43,44,45,46,47,48,49,50,51,52,53]  # Modify this list with the indices you want
 
 
-columns_to_keep =[1,3,5,8,9,12,13,16,17,23,40,42,46,47,48,49,50,51,52]  # Modify this list with the indices you want
+
+#columns_to_keep =[1,2,3,4,5,6,7,8,9,13,30,32,36,37,38,39,40]
 #columns_to_keep =[1,3,5,8,9,12,13,16,17,23,40,42,46,47,48,49,50]  # Modify this list with the indices you want
 
 
@@ -29,6 +33,7 @@ columns_to_keep =[1,3,5,8,9,12,13,16,17,23,40,42,46,47,48,49,50,51,52]  # Modify
 columns_to_keep_0based=[x-1 for x in columns_to_keep]
 # Generate the list of indices to remove
 columns_to_remove= [i for i in range(0, 52) if i not in columns_to_keep_0based]
+#columns_to_remove= [i for i in range(0, 52) if i not in columns_to_keep_0based]
 print(columns_to_remove)
 
 # Columns to remove (0-based index)

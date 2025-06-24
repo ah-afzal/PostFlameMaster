@@ -10,10 +10,10 @@ from multiprocessing import Pool
 from tqdm import tqdm
 
 core_count = 192
-n_Zmean=50
-n_Zvar=8
-n_Cstmean=50
-n_Cstvar=8
+n_Zmean=10
+n_Zvar=5
+n_Cstmean=10
+n_Cstvar=5
 var_ratio=1.1
 
 def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cstvar,var_ratio=var_ratio):
@@ -75,6 +75,7 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cst
         ct+=1
         for vz in range(n_Zvar):
            integrand=np.array([modified_dict[_][:,mz,vz] for _ in mod_sort])
+           print(integrand[:,12])
            table[:-2,mz,vz,:,:]=int_dCst(integrand,np.array(mod_sort),p,n_Cstmean,n_Cstvar,var_ratio)
        
 

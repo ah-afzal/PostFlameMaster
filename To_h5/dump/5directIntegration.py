@@ -107,7 +107,7 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cmean=n_Cmean,n_Cvar=n_Cvar,var_
         for i in range(num_points):
             for j in range(num_points):
                 if np.isnan(f[var][i,j]):
-                    f[var][i,j:]=0#f[var][i,j-1]
+                    f[var][i, j:] = np.nanmin(np.abs(f[var][i, :]))
     
                 
                  

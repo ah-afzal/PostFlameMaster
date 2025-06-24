@@ -86,7 +86,7 @@ def bilinear_interpolate(f, l1, l2, w1, w2):
 
 
 def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cstvar,var_ratio=var_ratio, n_Cmean=n_Cmean,n_Cvar=n_Cvar,):
-    directory = 'Modified_Files'
+    directory = 'betafavre'
     directs=os.listdir(directory)
     os.chdir(directory)  
     output_file='flameletTable.h5'
@@ -145,29 +145,34 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cst
         for vz in range(n_Zvar):
            integrand=np.array([modified_dict[_][:,mz,vz] for _ in mod_sort])
            table[:-2,mz,vz,:,:]=int_dCst(integrand,np.array(mod_sort),p,n_Cstmean,n_Cstvar,var_ratio)
-       
+    print("max wc:", np.max(table[WC_index]), flush=True) 
+    max_idx_flat = np.unravel_index(np.argmax(table[WC_index]), table[WC_index].shape)
+    rho_index = variables.index('rho')
+    print("rho here is:", table[rho_index][max_idx_flat], flush=True)
+    table[rho_index]=1/table[rho_index]
+    print("max:", np.max(table[rho_index]), flush=True)
+    print("min:", np.min(table[rho_index]), flush=True)
+  
+    include_vars = {'mu', 'ProdRateProgressVariable','ProgVarProdRate'}
+    for ivar in include_vars:
+        ivar_index=variables.index(ivar)
+        table[ivar_index]*=table[rho_index]
 
-     
-    for v in range(n_variables,n_variables+extra_variables):
-        for mz in range(n_Zmean):
-            for vz in range(n_Zvar):
-              for mc in range(n_Cstmean):
-                for vc in range(n_Cstvar):
-               
-                        if variables[v]=='ProgressVariableVariance':
-                            C_mean=table[C_index][mz][vz][mc][vc]
-                            C2_mean=table[C2_index][mz][vz][mc][vc]
-                            table[v][mz][vz][mc][vc]=C2_mean-C_mean**2
-                            continue
-                        if variables[v]=='MeanCresWCres':
-                            C_mean=table[C_index][mz][vz][mc][vc]
-                            WC_mean=table[WC_index][mz][vz][mc][vc]
-                            CWC_mean=table[CWC_index][mz][vz][mc][vc]
-                            
-                            table[v][mz][vz][mc][vc]=CWC_mean-C_mean*WC_mean
-                            continue
-                            
-                            
+    print("now max wc:", np.max(table[WC_index]), flush=True)
+
+
+    # Calculate ProgressVariableVariance
+    if 'ProgressVariableVariance' in variables:
+     v = variables.index('ProgressVariableVariance')
+     table[v] = table[C2_index] - np.square(table[C_index])
+
+    # Calculate MeanCresWCres
+    if 'MeanCresWCres' in variables:
+     v = variables.index('MeanCresWCres')
+     table[v] = table[CWC_index] - table[C_index] * table[WC_index]
+
+
+
                             
     Z_means = np.linspace(0, 1, n_Zmean)
     Z_vars=np.zeros(n_Zvar)

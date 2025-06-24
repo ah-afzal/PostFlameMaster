@@ -11,8 +11,7 @@ import os
 import pandas as pd
 import numpy as np
 # Specify the column indices to be removed (1-based index)
-columns_to_remove_indices = [n for n in range(40, 58) if n not in {42, 43, 44, 46,48, 57, 58}] 
-
+columns_to_remove_indices = [n for n in range(40, 58) if n not in {42, 43, 44, 46,48, 57, 58}]
 # Input directory path
 input_directory = "flamelets"
 
