@@ -2,8 +2,8 @@ import os
 import pandas as pd
 
 # Input and output directories
-input_folder = 'Modified_Files'
-output_folder = 'betafavre'
+input_folder = "../Temp/Final_flamelets"
+output_folder = "../Temp/Beta_flamelets"
 
 # Create output directory if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
@@ -26,7 +26,7 @@ for filename in os.listdir(input_folder):
                 df[col] = df[col]/df['rho']
         
         df['rho'] = 1/df['rho']
-
+#rho and mu are swapped for keeping proper order of columns for integration
         if 'rho' in df.columns and 'mu' in df.columns:
             cols = df.columns.tolist()
             rho_index = cols.index('rho')
@@ -42,5 +42,5 @@ for filename in os.listdir(input_folder):
         output_path = os.path.join(output_folder, filename)
         df.to_csv(output_path, index=False)
 
-print("All files processed and saved in 'betafavre' folder.")
+print("All files processed and saved in 'Beta_flamelets' folder.")
 

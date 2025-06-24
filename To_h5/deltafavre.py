@@ -2,8 +2,8 @@ import os
 import pandas as pd
 
 # Input and output directories
-input_folder = 'Modified_Files'
-output_folder = 'deltafavre'
+input_folder = "../Temp/Final_flamelets"
+output_folder = "../Temp/Delta_flamelets"
 
 # Create output directory if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
@@ -47,5 +47,5 @@ for filename in os.listdir(input_folder):
         output_path = os.path.join(output_folder, filename)
         df.to_csv(output_path, index=False)
 
-print("All files processed and saved in 'deltafavre' folder.")
+print("All files processed and saved in 'Delta_flamelets' folder.")
 

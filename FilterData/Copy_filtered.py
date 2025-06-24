@@ -4,8 +4,8 @@ import shutil
 import matplotlib.pyplot as plt
 
 # Define directories for dataset
-directory = "Processed_flamelets"  # Replace with the source directory
-filtered_folder = "Filtered_flamelets"  # Replace with the output directory
+directory = "../Temp/Processed_flamelets"  # Replace with the source directory
+filtered_folder = "../Temp/Filtered_flamelets"  # Replace with the output directory
 os.makedirs(filtered_folder, exist_ok=True)  # Create the folder if it doesn't exist
 
 # Define the threshold for `Tst` difference

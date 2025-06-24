@@ -2,10 +2,10 @@ import os
 import re
 import matplotlib.pyplot as plt
 
-directory = "Processed_flamelets"  # Replace with directory of flamelets
+directory = "../Temp/Processed_flamelets"  # Replace with directory of flamelets
 
 # Define the threshold for Tst difference
-delta = 10.0  # Change this to your desired value (0 for full)
+delta = 5.0  # Change this to your desired value (0 for full)
 
 # Initialize lists to store chi and Tst values
 chi_values = []
