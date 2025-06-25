@@ -13,8 +13,9 @@ core_count=192
 n_Zmean=100
 n_Zvar=15
 var_ratio=1.1
+output_file="../flameletTable.h5"
 
-def compile_hdf5(input_directory, output_file="dflameletTable.h5"):
+def compile_hdf5(input_directory, output_file=output_file):
     # Axes definitions
     axes = ["variables", "ZAverage", "ZNormalizedVariance", "ParameterProgressVariableAverage"]
 
@@ -88,7 +89,7 @@ def compile_hdf5(input_directory, output_file="dflameletTable.h5"):
 
 if __name__ == "__main__":
     # Path to the input directory containing Excel files
-    input_directory = "deltafavre"
+    input_directory = "../Temp/Delta_flamelets"
 
     # Generate the HDF5 file
     compile_hdf5(input_directory)

@@ -86,7 +86,7 @@ def bilinear_interpolate(f, l1, l2, w1, w2):
 
 
 def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cstvar,var_ratio=var_ratio, n_Cmean=n_Cmean,n_Cvar=n_Cvar,):
-    directory = 'betafavre'
+    directory = '../Temp/Beta_flamelets'
     directs=os.listdir(directory)
     os.chdir(directory)  
     output_file='flameletTable.h5'
@@ -262,7 +262,7 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cst
     
     axes = ["variables", "ZAverage", "ZNormalizedVariance", "ProgressVariableAverage","ProgressVariableVariance"] 
      #go to parent directory
-    os.chdir('..')
+    os.chdir('../..')
 
 
     
