@@ -145,20 +145,20 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cst
         for vz in range(n_Zvar):
            integrand=np.array([modified_dict[_][:,mz,vz] for _ in mod_sort])
            table[:-2,mz,vz,:,:]=int_dCst(integrand,np.array(mod_sort),p,n_Cstmean,n_Cstvar,var_ratio)
-    print("max wc:", np.max(table[WC_index]), flush=True) 
+    #print("max wc:", np.max(table[WC_index]), flush=True) 
     max_idx_flat = np.unravel_index(np.argmax(table[WC_index]), table[WC_index].shape)
     rho_index = variables.index('rho')
-    print("rho here is:", table[rho_index][max_idx_flat], flush=True)
+    #print("rho here is:", table[rho_index][max_idx_flat], flush=True)
     table[rho_index]=1/table[rho_index]
-    print("max:", np.max(table[rho_index]), flush=True)
-    print("min:", np.min(table[rho_index]), flush=True)
+    #print("max:", np.max(table[rho_index]), flush=True)
+    #print("min:", np.min(table[rho_index]), flush=True)
   
     include_vars = {'mu', 'ProdRateProgressVariable','ProgVarProdRate'}
     for ivar in include_vars:
         ivar_index=variables.index(ivar)
         table[ivar_index]*=table[rho_index]
 
-    print("now max wc:", np.max(table[WC_index]), flush=True)
+    #print("now max wc:", np.max(table[WC_index]), flush=True)
 
 
     # Calculate ProgressVariableVariance
@@ -188,7 +188,7 @@ def int_dZdCst(n_Zmean=n_Zmean,n_Zvar=n_Zvar, n_Cstmean=n_Cstmean,n_Cstvar=n_Cst
     
     C_var_index=variables.index("ProgressVariableVariance")
     C_var_max=np.max(table[C_var_index])
-    print("max cv",C_var_max)
+    #print("max cv",C_var_max)
     for i in range(n_Cvar-1):
         C_vars[i+1]=(1-var_ratio**(i+1))/(1-var_ratio)
     C_vars=(C_vars/C_vars[-1])*C_var_max
